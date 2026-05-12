@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para mi Colazón</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@300;500&family=Parisienne&display=swap');
+
+        body, html {
+            margin: 0; padding: 0;
+            height: 100vh;
+            /* Fondo de madera rosa con tulipanes solicitado */
+            background-color: #f8c8dc;
+            background-image: url('https://e0.pxfuel.com/wallpapers/365/1018/desktop-wallpaper-pink-tulips-on-pink-wooden-background-spring-flowers-pink-background-pink-wooden-texture-tulips.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* Capa de suavizado para el fondo */
+        .overlay-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 0;
+        }
+
+        /* Pantalla de Inicio */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff5f8;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 2000; transition: opacity 1s ease;
+        }
+
+        #overlay h1 {
+            font-family: 'Parisienne', cursive;
+            color: #d63384;
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        #btn-entrar {
+            padding: 20px 45px;
+            font-size: 1.6rem;
+            font-family: 'Dancing Script', cursive;
+            background: #ff85a2;
+            color: white;
+            border: none; border-radius: 50px;
+            cursor: pointer; 
+            box-shadow: 0 10px 25px rgba(255, 133, 162, 0.4);
+            transition: 0.3s ease;
+        }
+
+        #btn-entrar:hover { transform: scale(1.05); background: #f06292; }
+
+        /* Contenedor de la Pila de Fotos */
+        #game-container {
+            position: relative;
+            width: 320px;
+            height: 420px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+
+        /* Marco Polaroid Estilo Dibujado con Corazón */
+        .polaroid {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #fdfdfd;
+            padding: 15px 15px 75px 15px;
+            box-sizing: border-box;
+            /* Borde negro irregular como en tu imagen */
+            border: 2.5px solid #333; 
+            border-radius: 2% 3% 2% 4% / 1% 2% 3% 1%;
+            box-shadow: 12px 12px 25px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.5s;
+            user-select: none;
+            animation: swing infinite alternate ease-in-out;
+        }
+
+        /* El corazón dibujado a mano */
+        .polaroid::after {
+            content: "♥";
+            position: absolute;
+            bottom: 12px;
+            right: 25px;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.8rem;
+            color: #333;
+            opacity: 0.9;
+            transform: rotate(-10deg);
+        }
+
+        @keyframes swing {
+            from { transform: rotate(calc(var(--r) - 2deg)) translateY(0px); }
+            to { transform: rotate(calc(var(--r) + 2deg)) translateY(-18px); }
+        }
+
+        .polaroid img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            border: 1.5px solid #333;
+            pointer-events: none;
+        }
+
+        /* Efecto de salida */
+        .exit {
+            transform: translate(250%, -100%) rotate(120deg) scale(0.5) !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Carta Final */
+        #mensaje-final {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 90%;
+            max-width: 480px;
+            opacity: 0;
+            display: none;
+            z-index: 100;
+        }
+
+        .carta {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            border: 2px solid #333;
+            border-radius: 1% 2% 1% 2% / 2% 1% 2% 1%;
+        }
+
+        .carta h2 {
+            font-family: 'Parisienne', cursive;
+            color: #d63384;
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+        }
+
+        .carta p {
+            color: #444;
+            line-height: 1.8;
+            font-size: 1.25rem;
+            font-style: italic;
+        }
+
+        .contador {
+            position: absolute;
+            bottom: -75px;
+            color: white;
+            font-weight: 600;
+            background: rgba(214, 51, 132, 0.8);
+            padding: 8px 25px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        audio { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="overlay-bg"></div>
+
+    <div id="overlay">
+        <h1>Para el amor de mi vida...</h1>
+        <button id="btn-entrar">Abrir regalo ❤️</button>
+    </div>
+
+    <div id="mensaje-final">
+        <div class="carta">
+            <h2>¡Hola, Colazón!</h2>
+            <p>
+                Colazón, aquí un pequeño recuerdito de lo que hemos vivido juntos. 
+                Yo sé lo mucho que te gustan las fotitos y me disculpo por siempre olvidarme de eso, 
+                pero de hoy en adelante nos va a hacer falta espacio para llenar nuestra vida 
+                con recuerdos de fotitos. <br><br>
+                <strong>Te quelo mucho, colazón.</strong>
+            </p>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div id="stack"></div>
+        <div class="contador" id="conteo">42 recuerdos por descubrir</div>
+    </div>
+
+    <audio id="musica" loop>
+        <source src="wonderwall.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const btn = document.getElementById('btn-entrar');
+        const overlay = document.getElementById('overlay');
+        const gameContainer = document.getElementById('game-container');
+        const mensajeFinal = document.getElementById('mensaje-final');
+        const musica = document.getElementById('musica');
+        const stack = document.getElementById('stack');
+        const conteoText = document.getElementById('conteo');
+
+        let totalFotos = 42;
+        let fotosQuitadas = 0;
+
+        let indices = Array.from({length: totalFotos}, (_, i) => i + 1);
+        indices = indices.sort(() => Math.random() - 0.5);
+
+        indices.forEach((num, index) => {
+            const div = document.createElement('div');
+            div.className = 'polaroid';
+            
+            const randomRot = Math.floor(Math.random() * 16) - 8;
+            const randomDuration = (3 + Math.random() * 2).toFixed(2);
+            
+            div.style.setProperty('--r', `${randomRot}deg`);
+            div.style.animationDuration = `${randomDuration}s`;
+            div.style.zIndex = totalFotos - index;
+
+            div.innerHTML = `<img src="${num}.jpeg" alt="Recuerdo">`;
+            
+            div.addEventListener('click', function() {
+                this.classList.add('exit');
+                fotosQuitadas++;
+                
+                if (totalFotos - fotosQuitadas > 0) {
+                    conteoText.innerText = `${totalFotos - fotosQuitadas} fotos restantes`;
+                } else {
+                    conteoText.style.display = 'none';
+                    mostrarFinal();
+                }
+            });
+
+            stack.appendChild(div);
+        });
+
+        function mostrarFinal() {
+            setTimeout(() => {
+                gameContainer.style.display = 'none';
+                mensajeFinal.style.display = 'block';
+                setTimeout(() => { mensajeFinal.style.opacity = '1'; }, 100);
+            }, 800);
+        }
+
+        btn.addEventListener('click', () => {
+            musica.play();
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                gameContainer.style.display = 'flex';
+            }, 1000);
+        });
+    </script>
+
+</body>
+</html>
